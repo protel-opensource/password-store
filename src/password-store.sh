@@ -394,9 +394,13 @@ cmd_show() {
 
 cmd_find() {
 	[[ $# -eq 0 ]] && die "Usage: $PROGRAM $COMMAND pass-names..."
-	IFS="," eval 'echo "Search Terms: $*"'
-	local terms="*$(printf '%s*|*' "$@")"
-	tree -C -l --noreport -P "${terms%|*}" --prune --matchdirs --ignore-case "$PREFIX" | tail -n +2 | sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g'
+	GREP=$(echo "${PREFIX}" | sed -e 's/\//\\\//g')
+	TS="\\(.*"
+	TA=$(printf "%s.*\\|.*" "$@")
+	T=$(echo "$TA"|sed -e 's/\.\*\\|\.\*$//' -e 's/[\/]/\\&/g')
+	TE=".*\\)"
+	terms="${TS}${T}${TE}"
+	du -a "${PREFIX}" | sed -ne '/'"${GREP}\/${terms}"'.*.gpg$/s/^[0-9	 ]*'"${GREP}"'\///p' | sed -e 's/\.gpg$//' #| sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g'
 }
 
 cmd_grep() {
