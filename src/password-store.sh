@@ -13,12 +13,20 @@ which gpg2 &>/dev/null && GPG="gpg2"
 [[ -n $GPG_AGENT_INFO || $GPG == "gpg2" ]] && GPG_OPTS+=( "--batch" "--use-agent" )
 
 PREFIX="${PASSWORD_STORE_DIR:-$HOME/.password-store}"
+PREFIX_REGEX="$(echo "${PREFIX}" | sed -e 's/[\.\/]/\\&/g')"
 EXTENSIONS="${PASSWORD_STORE_EXTENSIONS_DIR:-$PREFIX/.extensions}"
 X_SELECTION="${PASSWORD_STORE_X_SELECTION:-clipboard}"
 CLIP_TIME="${PASSWORD_STORE_CLIP_TIME:-45}"
 GENERATED_LENGTH="${PASSWORD_STORE_GENERATED_LENGTH:-25}"
 CHARACTER_SET="${PASSWORD_STORE_CHARACTER_SET:-[:graph:]}"
 CHARACTER_SET_NO_SYMBOLS="${PASSWORD_STORE_CHARACTER_SET_NO_SYMBOLS:-[:alnum:]}"
+
+#TREE="tree -C -l --noreport "
+#TREE_POST="tail -n +2 | sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g'"
+# remove .gpg at end of line, but keep colors
+
+TREE="du -a"
+TREE_POST="grep \".gpg$\" | sed -e 's/^[0-9	]*.${PREFIX_REGEX}\///g' -e 's/.gpg$//' | sort"
 
 export GIT_CEILING_DIRECTORIES="$PREFIX/.."
 
@@ -376,12 +384,7 @@ cmd_show() {
 			fi
 		fi
 	elif [[ -d $PREFIX/$path ]]; then
-		if [[ -z $path ]]; then
-			echo "Password Store"
-		else
-			echo "${path%\/}"
-		fi
-		tree -C -l --noreport "$PREFIX/$path" | tail -n +2 | sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g' # remove .gpg at end of line, but keep colors
+		eval "${TREE} \"$PREFIX/$path\" | ${TREE_POST}"
 	elif [[ -z $path ]]; then
 		die "Error: password store is empty. Try \"pass init\"."
 	else
