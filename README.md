@@ -1,6 +1,6 @@
 # Simple Password Store
 
-<div class="author">by Jason Donenfeld <Jason@zx2c4.com></div>
+<div class="author">by Jason Donenfeld &lt;Jason@zx2c4.com&gt;</div>
 
 with fixes for more usable listing without the brain-dead tree tool.
 
