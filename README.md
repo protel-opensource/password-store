@@ -1,8 +1,8 @@
-======================
-Simple Password Store
-by Jason Donenfeld
-   Jason@zx2c4.com
-======================
+# Simple Password Store
+
+<div class="author">by Jason Donenfeld <Jason@zx2c4.com></div>
+
+with fixes for more usable listing without the brain-dead tree tool.
 
 This is a very simple password store that encrypts passwords using gpg and
 places the encrypted password in a directory. It can generate new passwords
